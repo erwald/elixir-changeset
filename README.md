@@ -18,11 +18,15 @@ iex(4)> Changeset.edits(taylor_swift_songs, positive_integers)
 
 iex(5)> Changeset.edits(positive_integers, taylor_swift_songs)
 [{:delete, 7, 1}, {:substitute, "I Knew You Were Trouble", 2}, {:delete, 33, 4}]
+
+# Edit steps include moves (i.e. deletions followed by insertions).
+iex(6)> Changeset.edits(~w( a v e r y ), ~w( g a r v e y))
+[{:insert, "g", 0}, {:move, "r", 3, 2}]
 ```
 
 ## Installation
 
-Changeset can be installed by adding it to `mix.exs`:
+Changeset will soon be able to be installed by adding it to `mix.exs`:
 
 ```elixir
 def deps do
