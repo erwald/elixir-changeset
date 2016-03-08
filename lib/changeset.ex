@@ -57,8 +57,8 @@ defmodule Changeset do
 
   # Reduces a list of action steps to combine insertions and deletions of the
   # same value into a single :move action with that value. (These are equivalent
-  # anyway, as a deletion and insertion elsewhere of a value A is nothing more
-  # than a movement.)
+  # anyway, as a deletion and insertion elsewhere of a certain value is nothing
+  # more than a movement of that value.)
   defp reduce_moves(edit_steps) do
     edit_steps
     |> Enum.reduce([], fn step, acc ->
