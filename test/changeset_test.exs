@@ -38,7 +38,7 @@ defmodule ChangesetTest do
   end
 
   test "kitten -> sitting edit steps", %{kitten: {s1, s2}} do
-    edits = Changeset.edit_steps(s1, s2)
+    edits = Changeset.edits(s1, s2)
     assert edits == [
       {:substitute, "s", 0},
       {:substitute, "i", 4},
@@ -47,7 +47,7 @@ defmodule ChangesetTest do
   end
 
   test "sitting -> kitten edit steps", %{kitten: {s1, s2}} do
-    edits = Changeset.edit_steps(s2, s1)
+    edits = Changeset.edits(s2, s1)
     assert edits == [
       {:substitute, "k", 0},
       {:substitute, "e", 4},
@@ -56,16 +56,23 @@ defmodule ChangesetTest do
   end
 
   test "garvey -> avery edit steps", %{garvey: {s1, s2}} do
-    edits = Changeset.edit_steps(s1, s2)
+    edits = Changeset.edits(s1, s2)
     assert edits == [
       {:delete, "g", 0},
-      {:delete, "r", 2},
-      {:insert, "r", 3}
+      {:move, "r", 2, 3}
+    ]
+  end
+
+  test "avery -> garvey edit steps", %{garvey: {s1, s2}} do
+    edits = Changeset.edits(s2, s1)
+    assert edits == [
+      {:insert, "g", 0},
+      {:move, "r", 3, 2}
     ]
   end
 
   test "preterit -> zeitgeist edit steps", %{preterit: {s1, s2}} do
-    edits = Changeset.edit_steps(s1, s2)
+    edits = Changeset.edits(s1, s2)
     assert edits == [
       {:substitute, "z", 0},
       {:delete, "r", 1},
@@ -77,7 +84,7 @@ defmodule ChangesetTest do
   end
 
   test "zeitgeist -> preterit edit steps", %{preterit: {s1, s2}} do
-    edits = Changeset.edit_steps(s2, s1)
+    edits = Changeset.edits(s2, s1)
     assert edits == [
       {:substitute, "p", 0},
       {:insert, "r", 1},
@@ -89,7 +96,7 @@ defmodule ChangesetTest do
   end
 
   test "kitten -> empty string edit steps", %{kitten: {s1, _s2}} do
-    edits = Changeset.edit_steps(s1, [])
+    edits = Changeset.edits(s1, [])
     assert edits == [
       {:delete, "k", 0},
       {:delete, "i", 1},
@@ -101,7 +108,7 @@ defmodule ChangesetTest do
   end
 
   test "empty string -> kitten edit steps", %{kitten: {s1, _s2}} do
-    edits = Changeset.edit_steps([], s1)
+    edits = Changeset.edits([], s1)
     assert edits == [
       {:insert, "k", 0},
       {:insert, "i", 1},

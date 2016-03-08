@@ -9,7 +9,7 @@ defmodule ChangesetBench do
   end
 
   bench "preterit -> zeitgeist edit steps" do
-    Changeset.edit_steps(@preterit, @zeitgeist)
+    Changeset.edits(@preterit, @zeitgeist)
   end
 
   bench "preterit <-> zeitgeist levenshtein distance" do
