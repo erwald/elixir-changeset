@@ -26,11 +26,11 @@ iex(6)> Changeset.edits(~w( a v e r y ), ~w( g a r v e y))
 
 ## Installation
 
-Changeset will soon be able to be installed by adding it to `mix.exs`:
+Changeset can be installed by adding it to `mix.exs`:
 
 ```elixir
 def deps do
-  [{:changeset, "~> 0.0.1"}]
+  [{:changeset, "~> 0.1"}]
 end
 ```
 
