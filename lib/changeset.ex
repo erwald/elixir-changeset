@@ -28,38 +28,31 @@ defmodule Changeset do
   """
   @spec edits([], []) :: [tuple]
   def edits(source, target) do
-    {res, _} = edt(source, target, [], Enum.count(source), Enum.count(target))
+    {res, _} = edt(Enum.reverse(source), Enum.reverse(target), [])
     res |> reduce_moves
   end
 
-  defp edt(_src, _tgt, res, 0, 0), do: {res, 0}
-  defp edt(src, tgt, res, i, 0) do
-    {res, cost} = edt(src, tgt, [mk_tup(:delete, src, i)] ++ res, i - 1, 0)
+  defp edt([], [], res), do: {res, 0}
+  defp edt([src_hd | src], [], res) do
+    {res, cost} = edt(src, [], [{:delete, src_hd, length(src)}] ++ res)
     {res, cost + 1}
   end
-  defp edt(src, tgt, res, 0, j) do
-    {res, cost} = edt(src, tgt, [mk_tup(:insert, tgt, j)] ++ res, 0, j - 1)
+  defp edt([], [tgt_hd | tgt], res) do
+    {res, cost} = edt([], tgt, [{:insert, tgt_hd, length(tgt)}] ++ res)
     {res, cost + 1}
   end
-  defp edt(src, tgt, res, i, j) do
-    if Enum.fetch!(src, i - 1) == Enum.fetch!(tgt, j - 1) do
-      edt(src, tgt, res, i - 1, j - 1)
+  defp edt([src_hd | src], [tgt_hd | tgt], res) do
+    if src_hd == tgt_hd do
+      edt(src, tgt, res)
     else
       [
-        edt(src, tgt, [mk_tup(:delete, src, i)] ++ res, i - 1, j),
-        edt(src, tgt, [mk_tup(:insert, tgt, j)] ++ res, i, j - 1),
-        edt(src, tgt, [mk_tup(:substitute, tgt, j)] ++ res, i - 1, j - 1)
+        edt(src, [tgt_hd] ++ tgt, [{:delete, src_hd, length(src)}] ++ res),
+        edt([src_hd] ++ src, tgt, [{:insert, tgt_hd, length(tgt)}] ++ res),
+        edt(src, tgt, [{:substitute, tgt_hd, length(tgt)}] ++ res)
       ]
       |> Enum.map(fn {res, cost} -> {res, cost + 1} end)
       |> Enum.min_by(fn {_, cost} -> cost end)
     end
-  end
-
-  # Takes a edit type (:delete, :insert or :substitute), a list of values and
-  # an index, and returns a tuple containing the action type, the affected
-  # value and the destination index.
-  defp mk_tup(type, list, dest) do
-    {type, Enum.fetch!(list, dest - 1), dest - 1}
   end
 
   # Reduces a list of action steps to combine insertions and deletions of the
