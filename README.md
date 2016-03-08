@@ -54,12 +54,12 @@ Settings:
   duration:      1.0 s
 
 ## ChangesetBench
-[16:43:32] 1/2: preterit <-> zeitgeist levenshtein distance
-[16:43:34] 2/2: preterit -> zeitgeist edit steps
+[17:36:35] 1/2: preterit <-> zeitgeist levenshtein distance
+[17:36:38] 2/2: preterit -> zeitgeist edit steps
 
-Finished in 3.73 seconds
+Finished in 6.97 seconds
 
 ## ChangesetBench
-preterit <-> zeitgeist levenshtein distance        1000   2086.26 µs/op
-preterit -> zeitgeist edit steps                    100   12482.46 µs/op
+preterit <-> zeitgeist levenshtein distance        1000   2150.54 µs/op
+preterit -> zeitgeist edit steps                    500   7499.73 µs/op
 ```
