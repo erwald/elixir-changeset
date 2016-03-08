@@ -124,13 +124,13 @@ defmodule Changeset do
 
   defp lev(source, []), do: length(source)
   defp lev([], target), do: length(target)
-  defp lev([hsrc | source], [htgt | target]) do
-    if hsrc == htgt do
+  defp lev([src_hd | source], [tgt_hd | target]) do
+    if src_hd == tgt_hd do
       lev(source, target)
     else
       Enum.min([
-        lev(source, [htgt] ++ target) + 1,
-        lev([hsrc] ++ source, target) + 1,
+        lev(source, [tgt_hd] ++ target) + 1,
+        lev([src_hd] ++ source, target) + 1,
         lev(source, target) + 1
         ])
     end
