@@ -34,11 +34,11 @@ defmodule Changeset do
 
   defp edt([], [], res), do: {res, 0}
   defp edt([src_hd | src], [], res) do
-    {res, cost} = edt(src, [], [{:delete, src_hd, length(src)}] ++ res)
+    {res, cost} = edt(src, [], [{:delete, src_hd, length(src)} | res])
     {res, cost + 1}
   end
   defp edt([], [tgt_hd | tgt], res) do
-    {res, cost} = edt([], tgt, [{:insert, tgt_hd, length(tgt)}] ++ res)
+    {res, cost} = edt([], tgt, [{:insert, tgt_hd, length(tgt)} | res])
     {res, cost + 1}
   end
   defp edt([src_hd | src], [tgt_hd | tgt], res) do
@@ -46,9 +46,9 @@ defmodule Changeset do
       edt(src, tgt, res)
     else
       [
-        edt(src, [tgt_hd] ++ tgt, [{:delete, src_hd, length(src)}] ++ res),
-        edt([src_hd] ++ src, tgt, [{:insert, tgt_hd, length(tgt)}] ++ res),
-        edt(src, tgt, [{:substitute, tgt_hd, length(tgt)}] ++ res)
+        edt(src, [tgt_hd] ++ tgt, [{:delete, src_hd, length(src)} | res]),
+        edt([src_hd] ++ src, tgt, [{:insert, tgt_hd, length(tgt)} | res]),
+        edt(src, tgt, [{:substitute, tgt_hd, length(tgt)} | res])
       ]
       |> Enum.map(fn {res, cost} -> {res, cost + 1} end)
       |> Enum.min_by(fn {_, cost} -> cost end)
@@ -126,8 +126,8 @@ defmodule Changeset do
       lev(source, target)
     else
       Enum.min([
-        lev(source, [tgt_hd] ++ target) + 1,
-        lev([src_hd] ++ source, target) + 1,
+        lev(source, [tgt_hd | target]) + 1,
+        lev([src_hd | source], target) + 1,
         lev(source, target) + 1
         ])
     end
