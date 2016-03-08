@@ -40,28 +40,26 @@ Run tests:
 
 ```sh
 $ mix test
-Compiled lib/changeset.ex
-...........
+.............
 
-Finished in 0.1 seconds (0.08s on load, 0.03s on tests)
-11 tests, 0 failures
+Finished in 0.1 seconds (0.1s on load, 0.03s on tests)
+13 tests, 0 failures
 ```
 
 Run benchmarks (using [benchfella](https://github.com/alco/benchfella)):
 
 ```sh
 $ mix bench
-Compiled lib/changeset.ex
 Settings:
   duration:      1.0 s
 
 ## ChangesetBench
-[15:19:11] 1/2: preterit <-> zeitgeist levenshtein distance
-[15:19:13] 2/2: preterit -> zeitgeist edit steps
+[16:43:32] 1/2: preterit <-> zeitgeist levenshtein distance
+[16:43:34] 2/2: preterit -> zeitgeist edit steps
 
-Finished in 3.39 seconds
+Finished in 3.73 seconds
 
 ## ChangesetBench
-preterit <-> zeitgeist levenshtein distance         500   3250.17 µs/op
-preterit -> zeitgeist edit steps                    100   12743.73 µs/op
+preterit <-> zeitgeist levenshtein distance        1000   2086.26 µs/op
+preterit -> zeitgeist edit steps                    100   12482.46 µs/op
 ```

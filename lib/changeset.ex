@@ -10,19 +10,16 @@ defmodule Changeset do
 
   ## Examples
 
-  ```
-  iex> taylor_swift_songs = [22, 15, "I Knew You Were Trouble"]
-  iex> positive_integers = [22, 7, 15, 186, 33]
-
-  iex> Changeset.edits(taylor_swift_songs, positive_integers)
-  [{:insert, 7, 1}, {:substitute, 186, 3}, {:insert, 33, 4}]
-
-  iex> Changeset.edits(positive_integers, taylor_swift_songs)
-  [{:delete, 7, 1}, {:substitute, "I Knew You Were Trouble", 2}, {:delete, 33, 4}]
-
-  iex> Changeset.edits(~w( a v e r y ), ~w( g a r v e y))
-  [{:insert, "g", 0}, {:move, "r", 3, 2}]
-  ```
+    iex> taylor_swift_songs = [22, 15, "I Knew You Were Trouble"]
+    [22, 15, "I Knew You Were Trouble"]
+    iex> positive_integers = [22, 7, 15, 186, 33]
+    [22, 7, 15, 186, 33]
+    iex> Changeset.edits(taylor_swift_songs, positive_integers)
+    [{:insert, 7, 1}, {:substitute, 186, 3}, {:insert, 33, 4}]
+    iex> Changeset.edits(positive_integers, taylor_swift_songs)
+    [{:delete, 7, 1}, {:substitute, "I Knew You Were Trouble", 2}, {:delete, 33, 4}]
+    iex> Changeset.edits(~w( a v e r y ), ~w( g a r v e y))
+    [{:insert, "g", 0}, {:move, "r", 3, 2}]
 
   """
   @spec edits([], []) :: [{atom, any, non_neg_integer}]
@@ -112,30 +109,29 @@ defmodule Changeset do
 
   ## Examples
 
-  ```
-  iex> taylor_swift_songs = [22, 15, "I Knew You Were Trouble"]
-  iex> positive_integers = [22, 7, 15, 186, 33]
-
-  iex> Changeset.levenshtein(taylor_swift_songs, positive_integers)
-  3
-  ```
+    iex> taylor_swift_songs = [22, 15, "I Knew You Were Trouble"]
+    [22, 15, "I Knew You Were Trouble"]
+    iex> positive_integers = [22, 7, 15, 186, 33]
+    [22, 7, 15, 186, 33]
+    iex> Changeset.levenshtein(taylor_swift_songs, positive_integers)
+    3
 
   """
   @spec levenshtein([], []) :: non_neg_integer
   def levenshtein(source, target) do
-    lev(source, target, Enum.count(source), Enum.count(target))
+    lev(Enum.reverse(source), Enum.reverse(target))
   end
 
-  defp lev(_source, _target, i, 0), do: i
-  defp lev(_source, _target, 0, j), do: j
-  defp lev(source, target, i, j) do
-    if Enum.fetch!(source, i - 1) == Enum.fetch!(target, j - 1) do
-      lev(source, target, i - 1, j - 1)
+  defp lev(source, []), do: length(source)
+  defp lev([], target), do: length(target)
+  defp lev([hsrc | source], [htgt | target]) do
+    if hsrc == htgt do
+      lev(source, target)
     else
       Enum.min([
-        lev(source, target, i - 1, j) + 1,
-        lev(source, target, i, j - 1) + 1,
-        lev(source, target, i - 1, j - 1) + 1
+        lev(source, [htgt] ++ target) + 1,
+        lev([hsrc] ++ source, target) + 1,
+        lev(source, target) + 1
         ])
     end
   end
