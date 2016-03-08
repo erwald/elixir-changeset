@@ -19,24 +19,6 @@ defmodule ChangesetTest do
     }
   end
 
-  test "kitten <-> sitting difference", %{kitten: {s1, s2}} do
-    {l, r} = Changeset.difference(s1, s2)
-    assert l == ["k", "e"]
-    assert r == ["s", "i", "g"]
-  end
-
-  test "preterit <-> zeitgeist difference", %{preterit: {s1, s2}} do
-    {l, r} = Changeset.difference(s1, s2)
-    assert l == ["p", "r", "r"]
-    assert r == ["z", "g", "i", "s"]
-  end
-
-  test "garvey <-> avery difference", %{garvey: {s1, s2}} do
-    {l, r} = Changeset.difference(s1, s2)
-    assert l == ["g"]
-    assert r == []
-  end
-
   test "kitten -> sitting edit steps", %{kitten: {s1, s2}} do
     edits = Changeset.edits(s1, s2)
     assert edits == [

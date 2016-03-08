@@ -4,10 +4,6 @@ defmodule ChangesetBench do
   @preterit String.split("preterit", "", trim: true)
   @zeitgeist String.split("zeitgeist", "", trim: true)
 
-  bench "preterit <-> zeitgeist difference" do
-    Changeset.difference(@preterit, @zeitgeist)
-  end
-
   bench "preterit -> zeitgeist edit steps" do
     Changeset.edits(@preterit, @zeitgeist)
   end
