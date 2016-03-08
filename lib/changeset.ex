@@ -1,7 +1,29 @@
 defmodule Changeset do
+  @moduledoc """
+  The Changeset module allows for calculating the Levenshtein distance between
+  two lists, or the actual edit steps required to go from one list to another.
+  """
+
   @doc """
   Calculate the the minimal steps (insertions, deletions, substitutions and
-  moves) required to turn list A into list B.
+  moves) required to turn one given list into another given list.
+
+  ## Examples
+
+  ```
+  iex> taylor_swift_songs = [22, 15, "I Knew You Were Trouble"]
+  iex> positive_integers = [22, 7, 15, 186, 33]
+
+  iex> Changeset.edits(taylor_swift_songs, positive_integers)
+  [{:insert, 7, 1}, {:substitute, 186, 3}, {:insert, 33, 4}]
+
+  iex> Changeset.edits(positive_integers, taylor_swift_songs)
+  [{:delete, 7, 1}, {:substitute, "I Knew You Were Trouble", 2}, {:delete, 33, 4}]
+
+  iex> Changeset.edits(~w( a v e r y ), ~w( g a r v e y))
+  [{:insert, "g", 0}, {:move, "r", 3, 2}]
+  ```
+
   """
   @spec edits([], []) :: [{atom, any, non_neg_integer}]
   def edits(source, target) do
@@ -87,6 +109,17 @@ defmodule Changeset do
   Calculate the the Levenshtein distance between two lists, i.e. how many
   insertions, deletions or substitutions are required to turn one given list
   into another.
+
+  ## Examples
+
+  ```
+  iex> taylor_swift_songs = [22, 15, "I Knew You Were Trouble"]
+  iex> positive_integers = [22, 7, 15, 186, 33]
+
+  iex> Changeset.levenshtein(taylor_swift_songs, positive_integers)
+  3
+  ```
+
   """
   @spec levenshtein([], []) :: non_neg_integer
   def levenshtein(source, target) do
