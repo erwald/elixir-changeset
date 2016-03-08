@@ -10,19 +10,23 @@ defmodule Changeset do
 
   ## Examples
 
-    iex> taylor_swift_songs = [22, 15, "I Knew You Were Trouble"]
-    [22, 15, "I Knew You Were Trouble"]
-    iex> positive_integers = [22, 7, 15, 186, 33]
-    [22, 7, 15, 186, 33]
-    iex> Changeset.edits(taylor_swift_songs, positive_integers)
-    [{:insert, 7, 1}, {:substitute, 186, 3}, {:insert, 33, 4}]
-    iex> Changeset.edits(positive_integers, taylor_swift_songs)
-    [{:delete, 7, 1}, {:substitute, "I Knew You Were Trouble", 2}, {:delete, 33, 4}]
-    iex> Changeset.edits(~w( a v e r y ), ~w( g a r v e y))
-    [{:insert, "g", 0}, {:move, "r", 3, 2}]
+      iex> taylor_swift_songs = [22, 15, "I Knew You Were Trouble"]
+      [22, 15, "I Knew You Were Trouble"]
+      iex> positive_integers = [22, 7, 15, 186, 33]
+      [22, 7, 15, 186, 33]
+      iex> Changeset.edits(taylor_swift_songs, positive_integers)
+      [{:insert, 7, 1}, {:substitute, 186, 3}, {:insert, 33, 4}]
+      iex> Changeset.edits(positive_integers, taylor_swift_songs)
+      [{:delete, 7, 1}, {:substitute, "I Knew You Were Trouble", 2}, {:delete, 33, 4}]
+
+  It also supports moves, each of which is really only a deletion followed by an
+  insertion.
+
+      iex> Changeset.edits(~w( a v e r y ), ~w( g a r v e y))
+      [{:insert, "g", 0}, {:move, "r", 3, 2}]
 
   """
-  @spec edits([], []) :: [{atom, any, non_neg_integer}]
+  @spec edits([], []) :: [tuple]
   def edits(source, target) do
     {res, _} = edt(source, target, [], Enum.count(source), Enum.count(target))
     res |> reduce_moves
@@ -109,12 +113,12 @@ defmodule Changeset do
 
   ## Examples
 
-    iex> taylor_swift_songs = [22, 15, "I Knew You Were Trouble"]
-    [22, 15, "I Knew You Were Trouble"]
-    iex> positive_integers = [22, 7, 15, 186, 33]
-    [22, 7, 15, 186, 33]
-    iex> Changeset.levenshtein(taylor_swift_songs, positive_integers)
-    3
+      iex> taylor_swift_songs = [22, 15, "I Knew You Were Trouble"]
+      [22, 15, "I Knew You Were Trouble"]
+      iex> positive_integers = [22, 7, 15, 186, 33]
+      [22, 7, 15, 186, 33]
+      iex> Changeset.levenshtein(taylor_swift_songs, positive_integers)
+      3
 
   """
   @spec levenshtein([], []) :: non_neg_integer
