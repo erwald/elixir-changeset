@@ -28,32 +28,65 @@ defmodule Changeset do
   """
   @spec edits([], []) :: [tuple]
   def edits(source, target) do
-    {res, _} = edt(Enum.reverse(source), Enum.reverse(target), [])
+    edits(source, target, fn _type, _value, _idx -> 1 end)
+  end
+
+  @doc """
+  Calculate the the minimal steps (insertions, deletions, substitutions and
+  moves) required to turn one given list into another given list using a custom
+  cost function, which takes an edit type (`:insert`, `:delete` or
+  `:substitute`), a value and an index and returns a cost (i.e. an integer).
+
+  (Note that the cost function is applied *before* insertions and deletions are
+  converted into moves, meaning it will never receive a `:move` edit as an
+  argument.)
+
+  ## Examples
+
+  For instance, making substitutions more costly will result in the algorithm
+  replacing them with insertions and deletions instead.
+
+      iex> Changeset.edits(~w( a b c ), ~w( a d c ))
+      [{:substitute, "d", 1}]
+      iex> Changeset.edits(~w( a b c ), ~w( a d c ), fn type, _, _ -> if type == :substitute, do: 5, else: 1 end)
+      [{:insert, "d", 1}, {:delete, "b", 1}]
+
+  """
+  @spec edits([], [], (atom, any, non_neg_integer -> integer)) :: [tuple]
+  def edits(source, target, cost_func) do
+    {res, _} = edt(Enum.reverse(source), Enum.reverse(target), [], cost_func)
     res |> reduce_moves
   end
 
-  defp edt([], [], res), do: {res, 0}
-  defp edt([src_hd | src], [], res) do
-    {res, cost} = edt(src, [], [{:delete, src_hd, length(src)} | res])
-    {res, cost + 1}
+  defp edt([], [], res, cost_func), do: {res, 0}
+  defp edt([src_hd | src], [], res, cost_func) do
+    edit = {:delete, src_hd, length(src)}
+    {res, cost} = edt(src, [], [edit | res], cost_func)
+    {res, cost + calc_cost(edit, cost_func)}
   end
-  defp edt([], [tgt_hd | tgt], res) do
-    {res, cost} = edt([], tgt, [{:insert, tgt_hd, length(tgt)} | res])
-    {res, cost + 1}
+  defp edt([], [tgt_hd | tgt], res, cost_func) do
+    edit = {:insert, tgt_hd, length(tgt)}
+    {res, cost} = edt([], tgt, [edit | res], cost_func)
+    {res, cost + calc_cost(edit, cost_func)}
   end
-  defp edt([src_hd | src], [tgt_hd | tgt], res) do
+  defp edt([src_hd | src], [tgt_hd | tgt], res, cost_func) do
     if src_hd == tgt_hd do
-      edt(src, tgt, res)
+      edt(src, tgt, res, cost_func)
     else
       [
-        edt(src, [tgt_hd] ++ tgt, [{:delete, src_hd, length(src)} | res]),
-        edt([src_hd] ++ src, tgt, [{:insert, tgt_hd, length(tgt)} | res]),
-        edt(src, tgt, [{:substitute, tgt_hd, length(tgt)} | res])
+        edt(src, [tgt_hd] ++ tgt, [{:delete, src_hd, length(src)} | res], cost_func),
+        edt([src_hd] ++ src, tgt, [{:insert, tgt_hd, length(tgt)} | res], cost_func),
+        edt(src, tgt, [{:substitute, tgt_hd, length(tgt)} | res], cost_func)
       ]
-      |> Enum.map(fn {res, cost} -> {res, cost + 1} end)
+      |> Enum.map(fn {res, cost} ->
+        {res, cost + calc_cost(List.first(res), cost_func)}
+      end)
       |> Enum.min_by(fn {_, cost} -> cost end)
     end
   end
+
+  # Calculates the cost for a given action using a given cost function.
+  defp calc_cost({type, value, idx}, cost_func), do: cost_func.(type, value, idx)
 
   # Reduces a list of action steps to combine insertions and deletions of the
   # same value into a single :move action with that value. (These are equivalent
