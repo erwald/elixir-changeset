@@ -71,3 +71,9 @@ Finished in 6.97 seconds
 preterit <-> zeitgeist levenshtein distance        1000   2150.54 µs/op
 preterit -> zeitgeist edit steps                    500   7499.73 µs/op
 ```
+
+## Changelog
+
+### 0.2.0
+
+* The `edits` function can now also take a custom cost function as an argument.

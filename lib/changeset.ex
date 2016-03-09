@@ -54,7 +54,7 @@ defmodule Changeset do
       [{:insert, "d", 1}, {:delete, "b", 1}]
 
   """
-  @spec edits([], [], (atom, any, non_neg_integer -> integer)) :: [tuple]
+  @spec edits([], [], (atom, any, non_neg_integer -> number)) :: [tuple]
   def edits(source, target, cost_func) do
     {res, _} = edt(Enum.reverse(source), Enum.reverse(target), [], cost_func)
     res |> reduce_moves
