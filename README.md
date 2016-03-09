@@ -5,23 +5,31 @@ An Elixir package for calculating between-list edit distances.
 It can calculate both the [Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance) between two lists and the actual edit steps required to go from one list to another (using the [Wagner-Fischer algorithm](https://en.wikipedia.org/wiki/Wagner%E2%80%93Fischer_algorithm)).
 
 ```elixir
-iex(1)> taylor_swift_songs = [22, 15, "I Knew You Were Trouble"]
-iex(2)> positive_integers = [22, 7, 15, 186, 33]
+iex> taylor_swift_songs = [22, 15, "I Knew You Were Trouble"]
+iex> positive_integers = [22, 7, 15, 186, 33]
 
 # Levenshtein.
-iex(3)> Changeset.levenshtein(taylor_swift_songs, positive_integers)
+iex> Changeset.levenshtein(taylor_swift_songs, positive_integers)
 3
 
 # Edit steps.
-iex(4)> Changeset.edits(taylor_swift_songs, positive_integers)
+iex> Changeset.edits(taylor_swift_songs, positive_integers)
 [{:insert, 7, 1}, {:substitute, 186, 3}, {:insert, 33, 4}]
 
-iex(5)> Changeset.edits(positive_integers, taylor_swift_songs)
+iex> Changeset.edits(positive_integers, taylor_swift_songs)
 [{:delete, 7, 1}, {:substitute, "I Knew You Were Trouble", 2}, {:delete, 33, 4}]
 
 # Edit steps include moves (i.e. deletions followed by insertions).
-iex(6)> Changeset.edits(~w( a v e r y ), ~w( g a r v e y))
+iex> Changeset.edits(~w( a v e r y ), ~w( g a r v e y))
 [{:insert, "g", 0}, {:move, "r", 3, 2}]
+
+# It is also possible to give the edits function a custom cost function.
+iex> Changeset.edits(~w( a b c ), ~w( a d c ))
+[{:substitute, "d", 1}]
+iex> Changeset.edits(~w( a b c ), ~w( a d c ), fn type, _value, _idx ->
+...>   if type == :substitute, do: 3, else: 1
+...> end)
+[{:insert, "d", 1}, {:delete, "b", 1}]
 ```
 
 ## Installation
