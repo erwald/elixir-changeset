@@ -22,7 +22,7 @@ defmodule Changeset do
   It also supports moves, each of which is really only a deletion followed by an
   insertion.
 
-      iex> Changeset.edits(~w( a v e r y ), ~w( g a r v e y))
+      iex> Changeset.edits(~w( a v e r y ), ~w( g a r v e y ))
       [{:insert, "g", 0}, {:move, "r", 3, 2}]
 
   """
