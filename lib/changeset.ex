@@ -48,7 +48,9 @@ defmodule Changeset do
 
       iex> Changeset.edits(~w( a b c ), ~w( a d c ))
       [{:substitute, "d", 1}]
-      iex> Changeset.edits(~w( a b c ), ~w( a d c ), fn type, _, _ -> if type == :substitute, do: 5, else: 1 end)
+      iex> Changeset.edits(~w( a b c ), ~w( a d c ), fn type, _value, _idx ->
+      ...>   if type == :substitute, do: 3, else: 1
+      ...> end)
       [{:insert, "d", 1}, {:delete, "b", 1}]
 
   """
