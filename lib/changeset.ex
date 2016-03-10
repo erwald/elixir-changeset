@@ -10,61 +10,90 @@ defmodule Changeset do
 
   ## Examples
 
-  ```
-  iex> taylor_swift_songs = [22, 15, "I Knew You Were Trouble"]
-  iex> positive_integers = [22, 7, 15, 186, 33]
+      iex> taylor_swift_songs = [22, 15, "I Knew You Were Trouble"]
+      [22, 15, "I Knew You Were Trouble"]
+      iex> positive_integers = [22, 7, 15, 186, 33]
+      [22, 7, 15, 186, 33]
+      iex> Changeset.edits(taylor_swift_songs, positive_integers)
+      [{:insert, 7, 1}, {:substitute, 186, 3}, {:insert, 33, 4}]
+      iex> Changeset.edits(positive_integers, taylor_swift_songs)
+      [{:delete, 7, 1}, {:substitute, "I Knew You Were Trouble", 2}, {:delete, 33, 4}]
 
-  iex> Changeset.edits(taylor_swift_songs, positive_integers)
-  [{:insert, 7, 1}, {:substitute, 186, 3}, {:insert, 33, 4}]
+  It also supports moves, each of which is really only a deletion followed by an
+  insertion.
 
-  iex> Changeset.edits(positive_integers, taylor_swift_songs)
-  [{:delete, 7, 1}, {:substitute, "I Knew You Were Trouble", 2}, {:delete, 33, 4}]
-
-  iex> Changeset.edits(~w( a v e r y ), ~w( g a r v e y))
-  [{:insert, "g", 0}, {:move, "r", 3, 2}]
-  ```
+      iex> Changeset.edits(~w( a v e r y ), ~w( g a r v e y ))
+      [{:insert, "g", 0}, {:move, "r", 3, 2}]
 
   """
-  @spec edits([], []) :: [{atom, any, non_neg_integer}]
+  @spec edits([], []) :: [tuple]
   def edits(source, target) do
-    {res, _} = edt(source, target, [], Enum.count(source), Enum.count(target))
+    edits(source, target, fn _type, _value, _idx -> 1 end)
+  end
+
+  @doc """
+  Calculate the the minimal steps (insertions, deletions, substitutions and
+  moves) required to turn one given list into another given list using a custom
+  cost function, which takes an edit type (`:insert`, `:delete` or
+  `:substitute`), a value and an index and returns a cost (i.e. an integer).
+
+  (Note that the cost function is applied *before* insertions and deletions are
+  converted into moves, meaning it will never receive a `:move` edit as an
+  argument.)
+
+  ## Examples
+
+  For instance, making substitutions more costly will result in the algorithm
+  replacing them with insertions and deletions instead.
+
+      iex> Changeset.edits(~w( a b c ), ~w( a d c ))
+      [{:substitute, "d", 1}]
+      iex> Changeset.edits(~w( a b c ), ~w( a d c ), fn type, _value, _idx ->
+      ...>   if type == :substitute, do: 3, else: 1
+      ...> end)
+      [{:insert, "d", 1}, {:delete, "b", 1}]
+
+  """
+  @spec edits([], [], (atom, any, non_neg_integer -> number)) :: [tuple]
+  def edits(source, target, cost_func) do
+    {res, _} = edt(Enum.reverse(source), Enum.reverse(target), [], cost_func)
     res |> reduce_moves
   end
 
-  defp edt(_src, _tgt, res, 0, 0), do: {res, 0}
-  defp edt(src, tgt, res, i, 0) do
-    {res, cost} = edt(src, tgt, [mk_tup(:delete, src, i)] ++ res, i - 1, 0)
-    {res, cost + 1}
+  defp edt([], [], res, cost_func), do: {res, 0}
+  defp edt([src_hd | src], [], res, cost_func) do
+    edit = {:delete, src_hd, length(src)}
+    {res, cost} = edt(src, [], [edit | res], cost_func)
+    {res, cost + calc_cost(edit, cost_func)}
   end
-  defp edt(src, tgt, res, 0, j) do
-    {res, cost} = edt(src, tgt, [mk_tup(:insert, tgt, j)] ++ res, 0, j - 1)
-    {res, cost + 1}
+  defp edt([], [tgt_hd | tgt], res, cost_func) do
+    edit = {:insert, tgt_hd, length(tgt)}
+    {res, cost} = edt([], tgt, [edit | res], cost_func)
+    {res, cost + calc_cost(edit, cost_func)}
   end
-  defp edt(src, tgt, res, i, j) do
-    if Enum.fetch!(src, i - 1) == Enum.fetch!(tgt, j - 1) do
-      edt(src, tgt, res, i - 1, j - 1)
+  defp edt([src_hd | src], [tgt_hd | tgt], res, cost_func) do
+    if src_hd == tgt_hd do
+      edt(src, tgt, res, cost_func)
     else
       [
-        edt(src, tgt, [mk_tup(:delete, src, i)] ++ res, i - 1, j),
-        edt(src, tgt, [mk_tup(:insert, tgt, j)] ++ res, i, j - 1),
-        edt(src, tgt, [mk_tup(:substitute, tgt, j)] ++ res, i - 1, j - 1)
+        edt(src, [tgt_hd] ++ tgt, [{:delete, src_hd, length(src)} | res], cost_func),
+        edt([src_hd] ++ src, tgt, [{:insert, tgt_hd, length(tgt)} | res], cost_func),
+        edt(src, tgt, [{:substitute, tgt_hd, length(tgt)} | res], cost_func)
       ]
-      |> Enum.map(fn {res, cost} -> {res, cost + 1} end)
+      |> Enum.map(fn {res, cost} ->
+        {res, cost + calc_cost(List.first(res), cost_func)}
+      end)
       |> Enum.min_by(fn {_, cost} -> cost end)
     end
   end
 
-  # Takes a edit type (:delete, :insert or :substitute), a list of values and
-  # an index, and returns a tuple containing the action type, the affected
-  # value and the destination index.
-  defp mk_tup(type, list, dest) do
-    {type, Enum.fetch!(list, dest - 1), dest - 1}
-  end
+  # Calculates the cost for a given action using a given cost function.
+  defp calc_cost({type, value, idx}, cost_func), do: cost_func.(type, value, idx)
 
   # Reduces a list of action steps to combine insertions and deletions of the
   # same value into a single :move action with that value. (These are equivalent
-  # anyway, as a deletion and insertion elsewhere of a value A is nothing more
-  # than a movement.)
+  # anyway, as a deletion and insertion elsewhere of a certain value is nothing
+  # more than a movement of that value.)
   defp reduce_moves(edit_steps) do
     edit_steps
     |> Enum.reduce([], fn step, acc ->
@@ -112,30 +141,29 @@ defmodule Changeset do
 
   ## Examples
 
-  ```
-  iex> taylor_swift_songs = [22, 15, "I Knew You Were Trouble"]
-  iex> positive_integers = [22, 7, 15, 186, 33]
-
-  iex> Changeset.levenshtein(taylor_swift_songs, positive_integers)
-  3
-  ```
+      iex> taylor_swift_songs = [22, 15, "I Knew You Were Trouble"]
+      [22, 15, "I Knew You Were Trouble"]
+      iex> positive_integers = [22, 7, 15, 186, 33]
+      [22, 7, 15, 186, 33]
+      iex> Changeset.levenshtein(taylor_swift_songs, positive_integers)
+      3
 
   """
   @spec levenshtein([], []) :: non_neg_integer
   def levenshtein(source, target) do
-    lev(source, target, Enum.count(source), Enum.count(target))
+    lev(Enum.reverse(source), Enum.reverse(target))
   end
 
-  defp lev(_source, _target, i, 0), do: i
-  defp lev(_source, _target, 0, j), do: j
-  defp lev(source, target, i, j) do
-    if Enum.fetch!(source, i - 1) == Enum.fetch!(target, j - 1) do
-      lev(source, target, i - 1, j - 1)
+  defp lev(source, []), do: length(source)
+  defp lev([], target), do: length(target)
+  defp lev([src_hd | source], [tgt_hd | target]) do
+    if src_hd == tgt_hd do
+      lev(source, target)
     else
       Enum.min([
-        lev(source, target, i - 1, j) + 1,
-        lev(source, target, i, j - 1) + 1,
-        lev(source, target, i - 1, j - 1) + 1
+        lev(source, [tgt_hd | target]) + 1,
+        lev([src_hd | source], target) + 1,
+        lev(source, target) + 1
         ])
     end
   end
