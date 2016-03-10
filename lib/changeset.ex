@@ -5,8 +5,8 @@ defmodule Changeset do
   """
 
   @doc """
-  Calculate the the minimal steps (insertions, deletions, substitutions and
-  moves) required to turn one given list into another given list.
+  Calculate the minimal steps (insertions, deletions, substitutions and moves)
+  required to turn one given list into another given list.
 
   ## Examples
 
@@ -32,10 +32,10 @@ defmodule Changeset do
   end
 
   @doc """
-  Calculate the the minimal steps (insertions, deletions, substitutions and
-  moves) required to turn one given list into another given list using a custom
-  cost function, which takes an edit type (`:insert`, `:delete` or
-  `:substitute`), a value and an index and returns a cost (i.e. an integer).
+  Calculate the minimal steps (insertions, deletions, substitutions and moves)
+  required to turn one given list into another given list using a custom cost
+  function, which takes an edit type (`:insert`, `:delete` or `:substitute`), a
+  value and an index and returns a cost (i.e. an integer).
 
   (Note that the cost function is applied *before* insertions and deletions are
   converted into moves, meaning it will never receive a `:move` edit as an
@@ -135,7 +135,7 @@ defmodule Changeset do
   end
 
   @doc """
-  Calculate the the Levenshtein distance between two lists, i.e. how many
+  Calculate the Levenshtein distance between two lists, i.e. how many
   insertions, deletions or substitutions are required to turn one given list
   into another.
 
