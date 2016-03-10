@@ -38,7 +38,7 @@ Changeset can be installed by adding it to `mix.exs`:
 
 ```elixir
 def deps do
-  [{:changeset, "~> 0.1.0"}]
+  [{:changeset, "~> 0.2.0"}]
 end
 ```
 
@@ -79,3 +79,4 @@ Finished in 6.75 seconds
 ### 0.2.0
 
 * The `edits` function can now also take a custom cost function as an argument.
+* The performance of the `edits` function has been slightly improved.
