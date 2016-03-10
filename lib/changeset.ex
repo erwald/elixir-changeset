@@ -56,29 +56,29 @@ defmodule Changeset do
   """
   @spec edits([], [], (atom, any, non_neg_integer -> number)) :: [tuple]
   def edits(source, target, cost_func) do
-    {res, _} = edt(Enum.reverse(source), Enum.reverse(target), [], cost_func)
+    {res, _} = do_edits(Enum.reverse(source), Enum.reverse(target), [], cost_func)
     res |> reduce_moves
   end
 
-  defp edt([], [], res, cost_func), do: {res, 0}
-  defp edt([src_hd | src], [], res, cost_func) do
+  defp do_edits([], [], res, cost_func), do: {res, 0}
+  defp do_edits([src_hd | src], [], res, cost_func) do
     edit = {:delete, src_hd, length(src)}
-    {res, cost} = edt(src, [], [edit | res], cost_func)
+    {res, cost} = do_edits(src, [], [edit | res], cost_func)
     {res, cost + calc_cost(edit, cost_func)}
   end
-  defp edt([], [tgt_hd | tgt], res, cost_func) do
+  defp do_edits([], [tgt_hd | tgt], res, cost_func) do
     edit = {:insert, tgt_hd, length(tgt)}
-    {res, cost} = edt([], tgt, [edit | res], cost_func)
+    {res, cost} = do_edits([], tgt, [edit | res], cost_func)
     {res, cost + calc_cost(edit, cost_func)}
   end
-  defp edt([src_hd | src], [tgt_hd | tgt], res, cost_func) do
+  defp do_edits([src_hd | src], [tgt_hd | tgt], res, cost_func) do
     if src_hd == tgt_hd do
-      edt(src, tgt, res, cost_func)
+      do_edits(src, tgt, res, cost_func)
     else
       [
-        edt(src, [tgt_hd] ++ tgt, [{:delete, src_hd, length(src)} | res], cost_func),
-        edt([src_hd] ++ src, tgt, [{:insert, tgt_hd, length(tgt)} | res], cost_func),
-        edt(src, tgt, [{:substitute, tgt_hd, length(tgt)} | res], cost_func)
+        do_edits(src, [tgt_hd] ++ tgt, [{:delete, src_hd, length(src)} | res], cost_func),
+        do_edits([src_hd] ++ src, tgt, [{:insert, tgt_hd, length(tgt)} | res], cost_func),
+        do_edits(src, tgt, [{:substitute, tgt_hd, length(tgt)} | res], cost_func)
       ]
       |> Enum.map(fn {res, cost} ->
         {res, cost + calc_cost(List.first(res), cost_func)}
@@ -151,19 +151,19 @@ defmodule Changeset do
   """
   @spec levenshtein([], []) :: non_neg_integer
   def levenshtein(source, target) do
-    lev(Enum.reverse(source), Enum.reverse(target))
+    do_levenshtein(Enum.reverse(source), Enum.reverse(target))
   end
 
-  defp lev(source, []), do: length(source)
-  defp lev([], target), do: length(target)
-  defp lev([src_hd | source], [tgt_hd | target]) do
+  defp do_levenshtein(source, []), do: length(source)
+  defp do_levenshtein([], target), do: length(target)
+  defp do_levenshtein([src_hd | source], [tgt_hd | target]) do
     if src_hd == tgt_hd do
-      lev(source, target)
+      do_levenshtein(source, target)
     else
       Enum.min([
-        lev(source, [tgt_hd | target]) + 1,
-        lev([src_hd | source], target) + 1,
-        lev(source, target) + 1
+        do_levenshtein(source, [tgt_hd | target]) + 1,
+        do_levenshtein([src_hd | source], target) + 1,
+        do_levenshtein(source, target) + 1
         ])
     end
   end
