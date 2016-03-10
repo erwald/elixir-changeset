@@ -48,10 +48,10 @@ Run tests:
 
 ```sh
 $ mix test
-.............
+................
 
-Finished in 0.1 seconds (0.1s on load, 0.03s on tests)
-13 tests, 0 failures
+Finished in 0.1 seconds (0.1s on load, 0.02s on tests)
+16 tests, 0 failures
 ```
 
 Run benchmarks (using [benchfella](https://github.com/alco/benchfella)):
@@ -62,14 +62,16 @@ Settings:
   duration:      1.0 s
 
 ## ChangesetBench
-[17:36:35] 1/2: preterit <-> zeitgeist levenshtein distance
-[17:36:38] 2/2: preterit -> zeitgeist edit steps
+[13:16:25] 1/3: `preterit` <-> `zeitgeist` levenshtein distance
+[13:16:27] 2/3: `preterit` -> `zeitgeist` edit steps
+[13:16:30] 3/3: `mark antony` -> `another man` edit steps
 
-Finished in 6.97 seconds
+Finished in 6.75 seconds
 
 ## ChangesetBench
-preterit <-> zeitgeist levenshtein distance        1000   2150.54 µs/op
-preterit -> zeitgeist edit steps                    500   7499.73 µs/op
+`preterit` <-> `zeitgeist` levenshtein distance        1000   2092.30 µs/op
+`preterit` -> `zeitgeist` edit steps                    200   9672.70 µs/op
+`mark antony` -> `another man` edit steps                 1   1430680.00 µs/op
 ```
 
 ## Changelog
