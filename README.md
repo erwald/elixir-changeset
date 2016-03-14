@@ -38,7 +38,7 @@ Changeset can be installed by adding it to `mix.exs`:
 
 ```elixir
 def deps do
-  [{:changeset, "~> 0.1.0"}]
+  [{:changeset, "~> 0.2.1"}]
 end
 ```
 
@@ -48,10 +48,10 @@ Run tests:
 
 ```sh
 $ mix test
-.............
+................
 
-Finished in 0.1 seconds (0.1s on load, 0.03s on tests)
-13 tests, 0 failures
+Finished in 0.1 seconds (0.1s on load, 0.01s on tests)
+16 tests, 0 failures
 ```
 
 Run benchmarks (using [benchfella](https://github.com/alco/benchfella)):
@@ -62,18 +62,25 @@ Settings:
   duration:      1.0 s
 
 ## ChangesetBench
-[17:36:35] 1/2: preterit <-> zeitgeist levenshtein distance
-[17:36:38] 2/2: preterit -> zeitgeist edit steps
+[15:58:58] 1/3: `preterit` <-> `zeitgeist` levenshtein distance
+[15:59:00] 2/3: `preterit` -> `zeitgeist` edit steps
+[15:59:04] 3/3: `mark antony` -> `another man` edit steps
 
-Finished in 6.97 seconds
+Finished in 6.95 seconds
 
 ## ChangesetBench
-preterit <-> zeitgeist levenshtein distance        1000   2150.54 µs/op
-preterit -> zeitgeist edit steps                    500   7499.73 µs/op
+`preterit` <-> `zeitgeist` levenshtein distance      500000   4.33 µs/op
+`preterit` -> `zeitgeist` edit steps                 200000   9.81 µs/op
+`mark antony` -> `another man` edit steps            100000   11.01 µs/op
 ```
 
 ## Changelog
 
+### 0.2.1
+
+* Adds [memoization](https://wiki.haskell.org/Memoization) (using the [DefMemo](https://github.com/os6sense/DefMemo) package), dramatically improving performance. The `levenshtein/2` function is now ~99.8% faster and the `edits/2` and `edits/3` functions are ~99.9% faster (which is another way of saying that they were very inefficient before).
+
 ### 0.2.0
 
-* The `edits` function can now also take a custom cost function as an argument.
+* There is now an `edits/3` function that takes a custom cost function as an argument.
+* The performance of the `edits/2` and `edits/3` functions has been slightly improved.

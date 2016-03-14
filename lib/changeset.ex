@@ -1,12 +1,14 @@
 defmodule Changeset do
+  import DefMemo
+
   @moduledoc """
   The Changeset module allows for calculating the Levenshtein distance between
   two lists, or the actual edit steps required to go from one list to another.
   """
 
   @doc """
-  Calculate the the minimal steps (insertions, deletions, substitutions and
-  moves) required to turn one given list into another given list.
+  Calculate the minimal steps (insertions, deletions, substitutions and moves)
+  required to turn one given list into another given list.
 
   ## Examples
 
@@ -32,10 +34,10 @@ defmodule Changeset do
   end
 
   @doc """
-  Calculate the the minimal steps (insertions, deletions, substitutions and
-  moves) required to turn one given list into another given list using a custom
-  cost function, which takes an edit type (`:insert`, `:delete` or
-  `:substitute`), a value and an index and returns a cost (i.e. an integer).
+  Calculate the minimal steps (insertions, deletions, substitutions and moves)
+  required to turn one given list into another given list using a custom cost
+  function, which takes an edit type (`:insert`, `:delete` or `:substitute`), a
+  value and an index and returns a cost (i.e. an integer).
 
   (Note that the cost function is applied *before* insertions and deletions are
   converted into moves, meaning it will never receive a `:move` edit as an
@@ -56,32 +58,40 @@ defmodule Changeset do
   """
   @spec edits([], [], (atom, any, non_neg_integer -> number)) :: [tuple]
   def edits(source, target, cost_func) do
-    {res, _} = edt(Enum.reverse(source), Enum.reverse(target), [], cost_func)
-    res |> reduce_moves
+    DefMemo.start_link # Necessary for memoization to work.
+    {res, _} = do_edits(Enum.reverse(source), Enum.reverse(target), cost_func)
+    res |> Enum.reverse |> reduce_moves
   end
 
-  defp edt([], [], res, cost_func), do: {res, 0}
-  defp edt([src_hd | src], [], res, cost_func) do
+  defmemo do_edits([], [], cost_func), do: {[], 0}
+  defmemo do_edits([src_hd | src], [], cost_func) do
     edit = {:delete, src_hd, length(src)}
-    {res, cost} = edt(src, [], [edit | res], cost_func)
-    {res, cost + calc_cost(edit, cost_func)}
+    {res, cost} = do_edits(src, [], cost_func)
+    {[edit | res], cost + calc_cost(edit, cost_func)}
   end
-  defp edt([], [tgt_hd | tgt], res, cost_func) do
+  defmemo do_edits([], [tgt_hd | tgt], cost_func) do
     edit = {:insert, tgt_hd, length(tgt)}
-    {res, cost} = edt([], tgt, [edit | res], cost_func)
-    {res, cost + calc_cost(edit, cost_func)}
+    {res, cost} = do_edits([], tgt, cost_func)
+    {[edit | res], cost + calc_cost(edit, cost_func)}
   end
-  defp edt([src_hd | src], [tgt_hd | tgt], res, cost_func) do
+  defmemo do_edits([src_hd | src], [tgt_hd | tgt], cost_func) do
     if src_hd == tgt_hd do
-      edt(src, tgt, res, cost_func)
+      do_edits(src, tgt, cost_func)
     else
       [
-        edt(src, [tgt_hd] ++ tgt, [{:delete, src_hd, length(src)} | res], cost_func),
-        edt([src_hd] ++ src, tgt, [{:insert, tgt_hd, length(tgt)} | res], cost_func),
-        edt(src, tgt, [{:substitute, tgt_hd, length(tgt)} | res], cost_func)
+        do_edits(src, [tgt_hd] ++ tgt, cost_func),
+        do_edits([src_hd] ++ src, tgt, cost_func),
+        do_edits(src, tgt, cost_func)
       ]
-      |> Enum.map(fn {res, cost} ->
-        {res, cost + calc_cost(List.first(res), cost_func)}
+      |> Enum.zip(
+        [
+          {:delete, src_hd, length(src)},
+          {:insert, tgt_hd, length(tgt)},
+          {:substitute, tgt_hd, length(tgt)}
+        ]
+      )
+      |> Enum.map(fn {{res, cost}, edit} ->
+        {[edit | res], cost + calc_cost(edit, cost_func)}
       end)
       |> Enum.min_by(fn {_, cost} -> cost end)
     end
@@ -135,7 +145,7 @@ defmodule Changeset do
   end
 
   @doc """
-  Calculate the the Levenshtein distance between two lists, i.e. how many
+  Calculate the Levenshtein distance between two lists, i.e. how many
   insertions, deletions or substitutions are required to turn one given list
   into another.
 
@@ -151,19 +161,20 @@ defmodule Changeset do
   """
   @spec levenshtein([], []) :: non_neg_integer
   def levenshtein(source, target) do
-    lev(Enum.reverse(source), Enum.reverse(target))
+    DefMemo.start_link # Necessary for memoization to work.
+    do_levenshtein(Enum.reverse(source), Enum.reverse(target))
   end
 
-  defp lev(source, []), do: length(source)
-  defp lev([], target), do: length(target)
-  defp lev([src_hd | source], [tgt_hd | target]) do
+  defmemo do_levenshtein(source, []), do: length(source)
+  defmemo do_levenshtein([], target), do: length(target)
+  defmemo do_levenshtein([src_hd | source], [tgt_hd | target]) do
     if src_hd == tgt_hd do
-      lev(source, target)
+      do_levenshtein(source, target)
     else
       Enum.min([
-        lev(source, [tgt_hd | target]) + 1,
-        lev([src_hd | source], target) + 1,
-        lev(source, target) + 1
+        do_levenshtein(source, [tgt_hd | target]) + 1,
+        do_levenshtein([src_hd | source], target) + 1,
+        do_levenshtein(source, target) + 1
         ])
     end
   end

@@ -5,7 +5,7 @@ defmodule Changeset.Mixfile do
     [app: :changeset,
     name: "Changeset",
     source_url: "https://github.com/erwald/elixir-changeset",
-    version: "0.1.0",
+    version: "0.2.1",
     elixir: "~> 1.2",
     description: description,
     package: package,
@@ -33,9 +33,11 @@ end
 #
 # Type "mix help deps" for more examples and options
 defp deps do
-  [{:earmark, "~> 0.2", only: :dev},
-  {:ex_doc, "~> 0.11", only: :dev},
-  {:benchfella, "~> 0.3.0", only: :dev}]
+  [{:earmark, "~> 0.2.1", only: :dev},
+  {:ex_doc, "~> 0.11.4", only: :dev},
+  {:benchfella, "~> 0.3.2", only: :dev},
+  {:credo, "~> 0.3.7", only: :dev},
+  {:defmemo, "~> 0.1.1"}]
 end
 
 defp description do

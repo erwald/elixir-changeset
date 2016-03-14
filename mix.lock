@@ -1,3 +1,6 @@
 %{"benchfella": {:hex, :benchfella, "0.3.2"},
+  "bunt": {:hex, :bunt, "0.1.5"},
+  "credo": {:hex, :credo, "0.3.7"},
+  "defmemo": {:hex, :defmemo, "0.1.1"},
   "earmark": {:hex, :earmark, "0.2.1"},
   "ex_doc": {:hex, :ex_doc, "0.11.4"}}
