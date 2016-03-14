@@ -50,7 +50,7 @@ Run tests:
 $ mix test
 ................
 
-Finished in 0.1 seconds (0.1s on load, 0.02s on tests)
+Finished in 0.1 seconds (0.1s on load, 0.01s on tests)
 16 tests, 0 failures
 ```
 
@@ -62,21 +62,25 @@ Settings:
   duration:      1.0 s
 
 ## ChangesetBench
-[13:16:25] 1/3: `preterit` <-> `zeitgeist` levenshtein distance
-[13:16:27] 2/3: `preterit` -> `zeitgeist` edit steps
-[13:16:30] 3/3: `mark antony` -> `another man` edit steps
+[15:58:58] 1/3: `preterit` <-> `zeitgeist` levenshtein distance
+[15:59:00] 2/3: `preterit` -> `zeitgeist` edit steps
+[15:59:04] 3/3: `mark antony` -> `another man` edit steps
 
-Finished in 6.75 seconds
+Finished in 6.95 seconds
 
 ## ChangesetBench
-`preterit` <-> `zeitgeist` levenshtein distance        1000   2092.30 µs/op
-`preterit` -> `zeitgeist` edit steps                    200   9672.70 µs/op
-`mark antony` -> `another man` edit steps                 1   1430680.00 µs/op
+`preterit` <-> `zeitgeist` levenshtein distance      500000   4.33 µs/op
+`preterit` -> `zeitgeist` edit steps                 200000   9.81 µs/op
+`mark antony` -> `another man` edit steps            100000   11.01 µs/op
 ```
 
 ## Changelog
 
+### 0.2.1
+
+* Adds [memoization](https://wiki.haskell.org/Memoization) (using the [DefMemo](https://github.com/os6sense/DefMemo) package), dramatically improving the performance. The `levenshtein/2` function is now ~99.8% faster and the `edits/2` and `edits/3` functions are ~99.9% faster (which is another way of saying that they were very inefficient before).
+
 ### 0.2.0
 
-* The `edits` function can now also take a custom cost function as an argument.
-* The performance of the `edits` function has been slightly improved.
+* There is now an `edits/3` function that takes a custom cost function as an argument.
+* The performance of the `edits/2` and `edits/3` functions has been slightly improved.

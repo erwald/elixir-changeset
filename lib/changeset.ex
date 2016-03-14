@@ -58,32 +58,40 @@ defmodule Changeset do
   """
   @spec edits([], [], (atom, any, non_neg_integer -> number)) :: [tuple]
   def edits(source, target, cost_func) do
-    {res, _} = do_edits(Enum.reverse(source), Enum.reverse(target), [], cost_func)
-    res |> reduce_moves
+    DefMemo.start_link # Necessary for memoization to work.
+    {res, _} = do_edits(Enum.reverse(source), Enum.reverse(target), cost_func)
+    res |> Enum.reverse |> reduce_moves
   end
 
-  defp do_edits([], [], res, cost_func), do: {res, 0}
-  defp do_edits([src_hd | src], [], res, cost_func) do
+  defmemo do_edits([], [], cost_func), do: {[], 0}
+  defmemo do_edits([src_hd | src], [], cost_func) do
     edit = {:delete, src_hd, length(src)}
-    {res, cost} = do_edits(src, [], [edit | res], cost_func)
-    {res, cost + calc_cost(edit, cost_func)}
+    {res, cost} = do_edits(src, [], cost_func)
+    {[edit | res], cost + calc_cost(edit, cost_func)}
   end
-  defp do_edits([], [tgt_hd | tgt], res, cost_func) do
+  defmemo do_edits([], [tgt_hd | tgt], cost_func) do
     edit = {:insert, tgt_hd, length(tgt)}
-    {res, cost} = do_edits([], tgt, [edit | res], cost_func)
-    {res, cost + calc_cost(edit, cost_func)}
+    {res, cost} = do_edits([], tgt, cost_func)
+    {[edit | res], cost + calc_cost(edit, cost_func)}
   end
-  defp do_edits([src_hd | src], [tgt_hd | tgt], res, cost_func) do
+  defmemo do_edits([src_hd | src], [tgt_hd | tgt], cost_func) do
     if src_hd == tgt_hd do
-      do_edits(src, tgt, res, cost_func)
+      do_edits(src, tgt, cost_func)
     else
       [
-        do_edits(src, [tgt_hd] ++ tgt, [{:delete, src_hd, length(src)} | res], cost_func),
-        do_edits([src_hd] ++ src, tgt, [{:insert, tgt_hd, length(tgt)} | res], cost_func),
-        do_edits(src, tgt, [{:substitute, tgt_hd, length(tgt)} | res], cost_func)
+        do_edits(src, [tgt_hd] ++ tgt, cost_func),
+        do_edits([src_hd] ++ src, tgt, cost_func),
+        do_edits(src, tgt, cost_func)
       ]
-      |> Enum.map(fn {res, cost} ->
-        {res, cost + calc_cost(List.first(res), cost_func)}
+      |> Enum.zip(
+        [
+          {:delete, src_hd, length(src)},
+          {:insert, tgt_hd, length(tgt)},
+          {:substitute, tgt_hd, length(tgt)}
+        ]
+      )
+      |> Enum.map(fn {{res, cost}, edit} ->
+        {[edit | res], cost + calc_cost(edit, cost_func)}
       end)
       |> Enum.min_by(fn {_, cost} -> cost end)
     end
