@@ -1,4 +1,6 @@
 defmodule Changeset do
+  import DefMemo
+
   @moduledoc """
   The Changeset module allows for calculating the Levenshtein distance between
   two lists, or the actual edit steps required to go from one list to another.
@@ -151,12 +153,13 @@ defmodule Changeset do
   """
   @spec levenshtein([], []) :: non_neg_integer
   def levenshtein(source, target) do
+    DefMemo.start_link # Necessary for memoization to work.
     do_levenshtein(Enum.reverse(source), Enum.reverse(target))
   end
 
-  defp do_levenshtein(source, []), do: length(source)
-  defp do_levenshtein([], target), do: length(target)
-  defp do_levenshtein([src_hd | source], [tgt_hd | target]) do
+  defmemo do_levenshtein(source, []), do: length(source)
+  defmemo do_levenshtein([], target), do: length(target)
+  defmemo do_levenshtein([src_hd | source], [tgt_hd | target]) do
     if src_hd == tgt_hd do
       do_levenshtein(source, target)
     else
