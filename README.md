@@ -2,7 +2,7 @@
 
 An Elixir package for calculating between-list edit distances.
 
-It can calculate both the [Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance) between two lists and the actual edit steps required to go from one list to another (using the [Wagner-Fischer algorithm](https://en.wikipedia.org/wiki/Wagner%E2%80%93Fischer_algorithm)).
+It can calculate both the [Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance) between two lists or binaries and the actual edit steps required to go from one list/binary to another (using the [Wagner-Fischer algorithm](https://en.wikipedia.org/wiki/Wagner%E2%80%93Fischer_algorithm)).
 
 ```elixir
 iex> taylor_swift_songs = [22, 15, "I Knew You Were Trouble"]
@@ -20,13 +20,13 @@ iex> Changeset.edits(positive_integers, taylor_swift_songs)
 [{:delete, 7, 1}, {:substitute, "I Knew You Were Trouble", 2}, {:delete, 33, 4}]
 
 # Edit steps include moves (i.e. deletions followed by insertions).
-iex> Changeset.edits(~w( a v e r y ), ~w( g a r v e y ))
+iex> Changeset.edits("avery", "garvey")
 [{:insert, "g", 0}, {:move, "r", 3, 2}]
 
 # It is also possible to give the edits function a custom cost function.
-iex> Changeset.edits(~w( a b c ), ~w( a d c ))
+iex> Changeset.edits("abc", "adc")
 [{:substitute, "d", 1}]
-iex> Changeset.edits(~w( a b c ), ~w( a d c ), fn type, _value, _idx ->
+iex> Changeset.edits("abc", "adc", fn type, _value, _idx ->
 ...>   if type == :substitute, do: 3, else: 1
 ...> end)
 [{:insert, "d", 1}, {:delete, "b", 1}]
@@ -50,7 +50,7 @@ Run tests:
 $ mix test
 ................
 
-Finished in 0.1 seconds (0.1s on load, 0.01s on tests)
+Finished in 0.2 seconds (0.1s on load, 0.01s on tests)
 16 tests, 0 failures
 ```
 
@@ -62,19 +62,26 @@ Settings:
   duration:      1.0 s
 
 ## ChangesetBench
-[15:58:58] 1/3: `preterit` <-> `zeitgeist` levenshtein distance
-[15:59:00] 2/3: `preterit` -> `zeitgeist` edit steps
-[15:59:04] 3/3: `mark antony` -> `another man` edit steps
+[22:43:21] 1/4: `preterit` <-> `zeitgeist` levenshtein distance
+[22:43:24] 2/4: `preterit` -> `zeitgeist` edit steps
+[22:43:26] 3/4: `mark antony` -> `another man` edit steps
+[22:43:28] 4/4: `figurine` <-> `ligature` (as binaries) levenshtein distance
 
-Finished in 6.95 seconds
+Finished in 8.52 seconds
 
 ## ChangesetBench
-`preterit` <-> `zeitgeist` levenshtein distance      500000   4.33 µs/op
-`preterit` -> `zeitgeist` edit steps                 200000   9.81 µs/op
-`mark antony` -> `another man` edit steps            100000   11.01 µs/op
+`preterit` <-> `zeitgeist` levenshtein distance                   200000   9.37 µs/op
+`figurine` <-> `ligature` (as binaries) levenshtein distance      100000   12.51 µs/op
+`preterit` -> `zeitgeist` edit steps                              100000   17.67 µs/op
+`mark antony` -> `another man` edit steps                         100000   19.61 µs/op
 ```
 
 ## Changelog
+
+### 0.2.2
+*(in development)*
+
+* Adds support for binaries (courtesy @mwmiller).
 
 ### 0.2.1
 
