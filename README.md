@@ -38,7 +38,7 @@ Changeset can be installed by adding it to `mix.exs`:
 
 ```elixir
 def deps do
-  [{:changeset, "~> 0.2.0"}]
+  [{:changeset, "~> 0.2.1"}]
 end
 ```
 
