@@ -7,6 +7,9 @@ defmodule ChangesetBench do
   @markantony ~w( m a r k a n t o n y )
   @anotherman ~w( a n o t h e r m a n )
 
+  @figurine "figurine"
+  @ligature "ligature"
+
   bench "`preterit` -> `zeitgeist` edit steps" do
     Changeset.edits(@preterit, @zeitgeist)
   end
@@ -17,6 +20,10 @@ defmodule ChangesetBench do
 
   bench "`preterit` <-> `zeitgeist` levenshtein distance" do
     Changeset.levenshtein(@preterit, @zeitgeist)
+  end
+
+  bench "`figurine` <-> `ligature` (as binaries) levenshtein distance" do
+    Changeset.levenshtein(@figurine, @ligature)
   end
 
 end

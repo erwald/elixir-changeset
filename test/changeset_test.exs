@@ -6,14 +6,14 @@ defmodule ChangesetTest do
     kitten = ~w( k i t t e n )
     sitting = ~w( s i t t i n g )
 
-    preterit = ~w( p r e t e r i t )
-    zeitgeist = ~w( z e i t g e i s t )
+    preterit = "preterit"
+    zeitgeist = "zeitgeist"
 
-    garvey = ~w( g a r v e y )
+    garvey = "garvey"
     avery = ~w( a v e r y )
 
     abc = ~w( a b c )
-    adc = ~w( a d c )
+    adc =  "adc"
 
     {:ok,
       kitten: {kitten, sitting},
