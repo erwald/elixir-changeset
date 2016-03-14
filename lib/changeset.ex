@@ -3,12 +3,12 @@ defmodule Changeset do
 
   @moduledoc """
   The Changeset module allows for calculating the Levenshtein distance between
-  two lists, or the actual edit steps required to go from one list to another.
+  two lists or binaries, or the actual edit steps required to go from one to the other.
   """
 
   @doc """
   Calculate the minimal steps (insertions, deletions, substitutions and moves)
-  required to turn one given list into another given list.
+  required to turn one given list or binary into another.
 
   ## Examples
 
@@ -28,14 +28,14 @@ defmodule Changeset do
       [{:insert, "g", 0}, {:move, "r", 3, 2}]
 
   """
-  @spec edits([], []) :: [tuple]
+  @spec edits(binary | [], binary | []) :: [tuple]
   def edits(source, target) do
     edits(source, target, fn _type, _value, _idx -> 1 end)
   end
 
   @doc """
   Calculate the minimal steps (insertions, deletions, substitutions and moves)
-  required to turn one given list into another given list using a custom cost
+  required to turn one given list or binary into another using a custom cost
   function, which takes an edit type (`:insert`, `:delete` or `:substitute`), a
   value and an index and returns a cost (i.e. an integer).
 
@@ -56,13 +56,16 @@ defmodule Changeset do
       [{:insert, "d", 1}, {:delete, "b", 1}]
 
   """
-  @spec edits([], [], (atom, any, non_neg_integer -> number)) :: [tuple]
+  @spec edits(binary | [], binary | [], (atom, any, non_neg_integer -> number)) :: [tuple]
+  def edits(source, target, cost_func) when is_binary(source), do: edits(source |> String.codepoints, target, cost_func)
+  def edits(source, target, cost_func) when is_binary(target), do: edits(source, target |> String.codepoints, cost_func)
   def edits(source, target, cost_func) do
     DefMemo.start_link # Necessary for memoization to work.
     {res, _} = do_edits(Enum.reverse(source), Enum.reverse(target), cost_func)
     res |> Enum.reverse |> reduce_moves
   end
 
+  @doc false
   defmemo do_edits([], [], cost_func), do: {[], 0}
   defmemo do_edits([src_hd | src], [], cost_func) do
     edit = {:delete, src_hd, length(src)}
@@ -159,12 +162,15 @@ defmodule Changeset do
       3
 
   """
-  @spec levenshtein([], []) :: non_neg_integer
+  @spec levenshtein(binary | [], binary | []) :: non_neg_integer
+  def levenshtein(source, target) when is_binary(source), do: levenshtein(source |> String.codepoints, target)
+  def levenshtein(source, target) when is_binary(target), do: levenshtein(source, target |> String.codepoints)
   def levenshtein(source, target) do
     DefMemo.start_link # Necessary for memoization to work.
     do_levenshtein(Enum.reverse(source), Enum.reverse(target))
   end
 
+  @doc false
   defmemo do_levenshtein(source, []), do: length(source)
   defmemo do_levenshtein([], target), do: length(target)
   defmemo do_levenshtein([src_hd | source], [tgt_hd | target]) do
