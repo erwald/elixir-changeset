@@ -32,7 +32,7 @@ iex> Changeset.edits("abc", "adc", fn type, _value, _idx ->
 [{:insert, "d", 1}, {:delete, "b", 1}]
 ```
 
-The resulting indices reflect edits where *deletions are made first*, before insertions and substitutions. That is, indices for deletions refer to the source collection, whereas indices for insertions and substitutions refer to the latter, resulting collections.
+The resulting indices reflect edits where *deletions are made first*, before insertions and substitutions. That is, indices for deletions refer to the source collection, whereas indices for insertions and substitutions refer to the latter, intermediate collections.
 
 An example will serve. Calling `edits/2` on "preterit" and "zeitgeist" returns the following:
 
