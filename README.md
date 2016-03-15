@@ -76,6 +76,10 @@ Finished in 8.52 seconds
 `mark antony` -> `another man` edit steps                         100000   19.61 µs/op
 ```
 
+## Contributing
+
+Contributions are welcome. Just open up an issue if you've found a problem or have a suggestion for a feature, or a pull request if you already know how to fix or implement it.
+
 ## Changelog
 
 ### 0.2.2
