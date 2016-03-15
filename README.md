@@ -32,6 +32,30 @@ iex> Changeset.edits("abc", "adc", fn type, _value, _idx ->
 [{:insert, "d", 1}, {:delete, "b", 1}]
 ```
 
+The resulting indices reflect edits where *deletions are made first*, before insertions and substitutions. That is, indices for deletions refer to the source collection, whereas indices for insertions and substitutions refer to the latter, resulting collections.
+
+An example will serve. Calling `edits/2` on "preterit" and "zeitgeist" returns the following:
+
+```elixir
+[
+  {:substitute, "z", 0},
+  {:delete, "r", 1},
+  {:insert, "i", 2},
+  {:insert, "g", 4},
+  {:delete, "r", 5},
+  {:insert, "s", 7}
+]
+```
+
+Let's look at these steps in order, keeping in mind that deletions are made first:
+
+1. Deleting at index 1 in "p**r**eterit" gives "peterit".
+2. Deleting at index 5 in "prete**r**it" gives "peteit".
+3. Substituting "z" at index 0 in "**p**eteit" gives "**z**eteit".
+4. Inserting "i" at index 2 in "zeteit" gives "ze**i**teit".
+5. Inserting "g" at index 4 in "zeiteit" gives "zeit**g**eit".
+6. Inserting "s" at index 7 in "zeitgeit" gives "zeitgei**s**t".
+
 ## Installation
 
 Changeset can be installed by adding it to `mix.exs`:
