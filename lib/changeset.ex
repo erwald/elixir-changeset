@@ -86,13 +86,11 @@ defmodule Changeset do
         do_edits([src_hd] ++ src, tgt, cost_func),
         do_edits(src, tgt, cost_func)
       ]
-      |> Enum.zip(
-        [
-          {:delete, src_hd, length(src)},
-          {:insert, tgt_hd, length(tgt)},
-          {:substitute, tgt_hd, length(tgt)}
-        ]
-      )
+      |> Enum.zip([
+        {:delete, src_hd, length(src)},
+        {:insert, tgt_hd, length(tgt)},
+        {:substitute, tgt_hd, length(tgt)}
+      ])
       |> Enum.map(fn {{res, cost}, edit} ->
         {[edit | res], cost + calc_cost(edit, cost_func)}
       end)
@@ -181,7 +179,7 @@ defmodule Changeset do
         do_levenshtein(source, [tgt_hd | target]) + 1,
         do_levenshtein([src_hd | source], target) + 1,
         do_levenshtein(source, target) + 1
-        ])
+      ])
     end
   end
 end
