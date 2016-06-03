@@ -62,7 +62,7 @@ Changeset can be installed by adding it to `mix.exs`:
 
 ```elixir
 def deps do
-  [{:changeset, "~> 0.2.1"}]
+  [{:changeset, "~> 0.2.2"}]
 end
 ```
 
@@ -107,7 +107,6 @@ Contributions are welcome. Just open up an issue if you've found a problem or ha
 ## Changelog
 
 ### 0.2.2
-*(in development)*
 
 * Adds support for binaries (courtesy @mwmiller).
 
