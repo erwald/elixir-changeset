@@ -74,7 +74,7 @@ Run tests:
 $ mix test
 ................
 
-Finished in 0.2 seconds (0.1s on load, 0.01s on tests)
+Finished in 0.1 seconds
 16 tests, 0 failures
 ```
 
@@ -86,18 +86,19 @@ Settings:
   duration:      1.0 s
 
 ## ChangesetBench
-[22:43:21] 1/4: `preterit` <-> `zeitgeist` levenshtein distance
-[22:43:24] 2/4: `preterit` -> `zeitgeist` edit steps
-[22:43:26] 3/4: `mark antony` -> `another man` edit steps
-[22:43:28] 4/4: `figurine` <-> `ligature` (as binaries) levenshtein distance
+[17:47:11] 1/4: `figurine` <-> `ligature` (as binaries) levenshtein distance
+[17:47:14] 2/4: `mark antony` -> `another man` edit steps
+[17:47:15] 3/4: `preterit` -> `zeitgeist` edit steps
+[17:47:18] 4/4: `preterit` <-> `zeitgeist` levenshtein distance
 
-Finished in 8.52 seconds
+Finished in 9.54 seconds
 
 ## ChangesetBench
-`preterit` <-> `zeitgeist` levenshtein distance                   200000   9.37 µs/op
-`figurine` <-> `ligature` (as binaries) levenshtein distance      100000   12.51 µs/op
-`preterit` -> `zeitgeist` edit steps                              100000   17.67 µs/op
-`mark antony` -> `another man` edit steps                         100000   19.61 µs/op
+benchmark name                                                iterations   average time
+`preterit` <-> `zeitgeist` levenshtein distance                   500000   3.72 µs/op
+`figurine` <-> `ligature` (as binaries) levenshtein distance      500000   5.53 µs/op
+`preterit` -> `zeitgeist` edit steps                              200000   8.56 µs/op
+`mark antony` -> `another man` edit steps                         100000   10.09 µs/op
 ```
 
 ## Contributing
