@@ -7,11 +7,11 @@ defmodule Changeset.Mixfile do
     source_url: "https://github.com/erwald/elixir-changeset",
     version: "0.2.2",
     elixir: "~> 1.2",
-    description: description,
-    package: package,
+    description: description(),
+    package: package(),
     build_embedded: Mix.env == :prod,
     start_permanent: Mix.env == :prod,
-    deps: deps,
+    deps: deps(),
     docs: [extras: ["README.md"]]
   ]
 end
