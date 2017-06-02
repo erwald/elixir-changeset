@@ -33,10 +33,10 @@ end
 #
 # Type "mix help deps" for more examples and options
 defp deps do
-  [{:earmark, "~> 0.2.1", only: :dev},
-  {:ex_doc, "~> 0.11.4", only: :dev},
-  {:benchfella, "~> 0.3.2", only: :dev},
-  {:credo, "~> 0.3.7", only: :dev},
+  [{:earmark, "~> 1.2.2", only: :dev},
+  {:ex_doc, "~> 0.16.1", only: :dev},
+  {:benchfella, "~> 0.3.4", only: :dev},
+  {:credo, "~> 0.8.0", only: :dev},
   {:defmemo, "~> 0.1.1"}]
 end
 
