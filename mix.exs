@@ -6,7 +6,7 @@ defmodule Changeset.Mixfile do
     name: "Changeset",
     source_url: "https://github.com/erwald/elixir-changeset",
     version: "0.2.2",
-    elixir: "~> 1.2",
+    elixir: "~> 1.4",
     description: description(),
     package: package(),
     build_embedded: Mix.env == :prod,
