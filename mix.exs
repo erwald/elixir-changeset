@@ -5,7 +5,7 @@ defmodule Changeset.Mixfile do
     [app: :changeset,
     name: "Changeset",
     source_url: "https://github.com/erwald/elixir-changeset",
-    version: "0.2.2",
+    version: "1.0.0",
     elixir: "~> 1.4",
     description: description(),
     package: package(),
