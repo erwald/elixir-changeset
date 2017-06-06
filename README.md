@@ -107,6 +107,10 @@ Contributions are welcome. Just open up an issue if you've found a problem or ha
 
 ## Changelog
 
+### 1.0.0
+
+* Minor updates for Elixir 1.4.
+
 ### 0.2.2
 
 * Adds support for binaries (courtesy @mwmiller).
